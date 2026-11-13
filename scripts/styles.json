@@ -1,0 +1,39 @@
+{
+ "_doc": "The one drawing style of The Hidden Bargain. prompts.py assembles every Flow prompt from it: prefix + one sheet per cast member (with the costume of the shot's era) + reference line + crowd rule + setting + framing and scene + background + suffix. cast.<name>.ref is the file name of the reference image in the Flow project library (copies in assets/cast/), attached as an ingredient by flow/batch.mjs. costumes.modern never carries a weapon (rule: no spear in a modern scene). The reference images show a spear and, for the heroine, a short sleeveless dress: the costume text overrides them, and Image QC checks it.",
+ "default": "data-couple",
+ "styles": {
+  "data-couple": {
+   "label": "Trio de la chaîne : héros blond à moustache, héroïne rousse, ami brun barbu ; bonshommes bâton à tête ronde, trait noir épais, décors peints",
+   "prefix": "Bold 2D cartoon illustration, thick clean black ink outlines, saturated colours, fully painted background with real depth and dramatic lighting, 16:9 wide format.",
+   "insert_prefix": "Bold 2D cartoon illustration, thick clean black ink outlines, saturated colours, flat plain background, 16:9 wide format.",
+   "cast": {
+    "hero": {
+     "ref": "reference.png",
+     "sheet": "a man drawn as a simple white stick-figure cartoon, a smooth white round head with two small black dot eyes and thin expressive eyebrows, a small hand-drawn mouth, a short blond pompadour quiff and a small brown mustache, a thin white body with stick-thin limbs, {costume}",
+     "costumes": {"modern": "wearing a plain grey hoodie and blue jeans, empty-handed, never holding a spear", "tribe": "wearing a ragged brown fur tunic that covers his chest, barefoot"}
+    },
+    "heroine": {
+     "ref": "heroine.png",
+     "sheet": "a woman drawn as the same simple white stick-figure cartoon, a smooth white round head with two small black dot eyes and thin expressive eyebrows, long wavy red hair, red lips, rosy cheeks, a thin white body with stick-thin limbs, {costume}, standing or sitting in a calm natural pose",
+     "costumes": {"modern": "wearing a long-sleeved green sweater and a long skirt down to her ankles, empty-handed", "tribe": "wearing a long brown fur dress with long sleeves, a round neckline at the base of the neck and a hem down to her ankles, barefoot"}
+    },
+    "friend": {
+     "ref": "second-male.png",
+     "sheet": "a man drawn as the same simple stick-figure cartoon, a smooth round head in a flat even warm brown skin colour, two small oval eyes with a tiny white highlight, a friendly clearly drawn face, short tight black curly hair, a short neat black beard, a thin body with stick-thin limbs in the same warm brown colour, {costume}, never a black silhouette, never a caricature",
+     "costumes": {"modern": "wearing a plain dark red sweater and jeans, empty-handed, never holding a spear", "tribe": "wearing a plain grey wolf-fur tunic that covers his chest, barefoot"}
+    }
+   },
+   "crowd": "Any other people are small plain stick figures with round heads and dot eyes, fully clothed, no detailed or realistic humans anywhere.",
+   "scene_bg": "Full painted set with real depth of the place described above, nothing added from another era, the characters small to medium in a large set.",
+   "scene_bg_nochar": "Full painted set with real depth of the place described above; any people are small plain stick figures with round heads and dot eyes, fully clothed, no detailed or realistic humans.",
+   "insert_bg": "Plain dark teal-blue background, nothing else drawn around the subject, the subject centred with generous empty space.",
+   "dark": "Dark variant: same drawing style, the place described above at night, deep blue shadows, one warm light source.",
+   "dark_scene_bg": "Full painted set of the place described above at night, deep blue shadows, one warm light source.",
+   "dark_insert_bg": "Dark navy background, nothing else drawn around the subject, the subject centred.",
+   "pov_hands": "the character's simple cartoon hands visible at the bottom of the frame",
+   "suffix": "Family-friendly, everyone fully clothed. no text, no letters, no numbers, no speech bubbles, no signs, no labels, no religious symbols, no watermark.",
+   "thumbnail": "Bold 2D cartoon illustration, thick clean black ink outlines, saturated colours, 16:9 wide format. {who} side by side in the lower two thirds of the frame, faces large and clearly readable. {action} {prop} Setting: {setting}, saturated colours. Family-friendly, everyone fully clothed with long sleeves and long clothes, upright natural poses, nobody kneeling or leaning over, no romantic pose.",
+   "qc": "all people are round-headed stick figures with thick black outlines: the hero has a white head, a blond quiff and a small brown mustache; the heroine a white head, long wavy red hair, long sleeves and an ankle-length dress or skirt; the friend a warm brown head with a clearly drawn friendly face, black curly hair and a short beard (never a black silhouette). Reject: a detailed or realistic human next to stick figures, bare shoulders or legs, a suggestive pose, a spear or weapon in a modern scene, any religious symbol, text or digits, a speech bubble, a different character design"
+  }
+ }
+}
