@@ -19,7 +19,8 @@ from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFo
 
 W, H = 1280, 720
 YELLOW, NAVY = (242, 196, 70), (26, 40, 78)
-FONT = "C:/Windows/Fonts/impact.ttf"
+FONT = next((f for f in ("C:/Windows/Fonts/impact.ttf", "/System/Library/Fonts/Supplemental/Impact.ttf",   # Windows, macOS
+                          "/usr/share/fonts/truetype/msttcorefonts/Impact.ttf") if __import__("os").path.exists(f)), "C:/Windows/Fonts/impact.ttf")
 RISK = r"\b(sex|sexual|sexy|rape[ds]?|raping|porn\w*|orgasm\w*|nude[s]?|naked|fetish\w*|erotic\w*|nsfw|xxx|horny|adult content|genital\w*|masturbat\w*)\b"   # same list as yt/ypp_lint.py
 
 def lint(text):

@@ -69,3 +69,28 @@ But that number hides something.
 ```
 
 Exemple miniature de 12 lignes (chiffres inventés, pour tester les scripts seulement) : `assets/example/script.md`.
+
+## 5. Anti-ennui : ce qui garde le milieu de la vidéo (22 novembre 2026)
+
+**Le constat.** Sur les vidéos de 12 min de la chaîne, 50 à 68 % des spectateurs sont encore là à 30 s, mais seulement 19 à 33 % de la vidéo est vue en moyenne (`channel-results.md` §3) : le milieu fait partir. Mesuré sur la vidéo du bain (22 nov.) :
+- **Le texte racontait les sources au lieu de l'histoire.** 27 mises en garde et 7 phrases sur des éditions ; le chapitre 7 disait 4 phrases sur la méthode du sondage avant le chiffre et 4 sur ses limites après.
+- **Le rythme était constant.** Chaque ligne faisait environ 11 mots, chaque plan durait environ 3,9 s et la voix n'avait aucune pause de plus de 0,8 s.
+- **Les images et les couleurs ne changeaient pas.** Une même image revenait 11 fois et 5 images sur 12 de la minute 8 n'avaient rien à voir avec la phrase. Tout le film avait la même couleur brun doré.
+
+`yt/script_lint.py` vérifie les points 1 à 3 sur chaque bloc. `make_shots.py` vérifie le point 6, et `hf_build.py` et `mix.py` exécutent les points 3 à 5.
+
+1. **La méthode à l'écran, pas dans la voix.** Comment la source a été faite (dates du sondage, effectif, édition, manuscrit) passe dans une étiquette `src(spec, "…")` en haut à gauche du plan. La voix garde le chiffre et une seule limite, dite une fois, au moment où elle change le sens du chiffre. Dans un bloc, les lignes de méthode et de mise en garde ne dépassent pas le quart des lignes.
+2. **Des lignes de longueurs différentes.** Au moins 2 lignes de 5 mots ou moins par bloc (« Six point four times a week. », « Most days. Not every day. ») à côté de lignes longues. L'écart type des longueurs doit être d'au moins 3,5 mots. La moyenne du script peut descendre à 9 mots.
+3. **Des temps forts (« beats »).** La ligne de la révélation se termine par ` //` dans `script.md`. `tts.py` laisse alors 0,9 s de silence après elle, le plan reste à l'écran et `mix.py` remonte la musique de 8 dB pendant ce silence. Il en faut 1 à 3 par bloc. Le contrôle audio (aucun trou de plus de 0,7 s) reste valable, puisque la musique remplit la pause.
+4. **Une promesse par bloc**, tenue plus loin par un fait de `facts.md` (« Hold on to that number, because you're about to put it on a scale. »). Le contrôle se contente d'un avertissement : une promesse forcée sonne faux.
+5. **Le rythme des images varie.** `BURST([...])` montre 2 ou 3 images sur une seule ligne, environ 1 à 1,5 s chacune, pour une énumération ou un contraste (« cleaner or dirtier than you? » : le bain médiéval, puis toi sur ton canapé). La révélation reste à l'écran pendant le temps fort. `T("…")` sert aux phrases-chocs de 2 à 4 mots.
+6. **L'image montre ce que dit la phrase.** Une même image apparaît à 2 endroits au plus dans la vidéo (plusieurs lignes `R` qui se suivent comptent pour un seul endroit, et la scène d'ouverture est exemptée). Faute d'image juste, utiliser `DATE`, `CLIP`, `MAP`, un insert ou un titre, jamais une image hors sujet. `image-qc` lit la planche avec la phrase sous chaque image.
+7. **Une couleur par partie** : `GRADE = {chapitre: "cool" | "modern" | "warm" | "night"}` dans `make_shots.py`, et `grade(spec, …)` pour un plan précis. Exemple : `modern` pour « toi aujourd'hui », `warm` pour les bains médiévaux, `night` pour la fermeture. Le filtre ne s'applique qu'aux images, jamais aux inserts, aux cartes ni aux titres.
+
+**Exemple avant/après du chapitre 7 (bain, 22 nov.) :**
+- **Avant** : 18 erreurs anti-ennui sur les blocs 2 à 7.
+- **Après** : 0 erreur sur le chapitre 7 réécrit, avec les mêmes faits.
+- **Le texte** : 4 lignes de méthode remplacées par une étiquette « Ipsos · online poll, Aug 3-6, 2018 · about 1,005 US adults · self-reported » ; 3 temps forts ; 1 promesse.
+- **Les images** : 12 images différentes, sans aucune nouvelle génération Flow.
+
+Effet sur la rétention : **pas encore mesuré**. À juger sur la courbe de la première vidéo écrite ainsi, à J+7 (`mesure.md`).

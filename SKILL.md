@@ -1,6 +1,6 @@
 ---
 name: what-the-data-says-video
-description: Produit de bout en bout une vidéo YouTube de 12 minutes pour la chaîne The Hidden Bargain (@hiddenbargain) au format « Do [Women/Men] Really [X]? What the Data Says » - choix du sujet par les chiffres, script orienté rétention fondé sur des études nommées, voix ElevenLabs, images Google Flow avec la troupe de la chaîne, montage HyperFrames, miniature, Short d'appel, fiche de publication conforme au Programme Partenaire YouTube, puis mesure dans Studio à J+2 et J+7. Utilise ce skill dès que l'utilisateur veut une nouvelle vidéo pour The Hidden Bargain, un sujet hommes-femmes ou d'attirance « données à l'appui », « what the data says », « do women really prefer… », un sujet qui rapporte des vues ou des heures de visionnage, la monétisation ou AdSense de cette chaîne, une miniature, un titre ou un Short pour elle, ou le bilan d'une vidéo publiée (clics, rétention), même s'il ne nomme pas le skill. Pour les vidéos préhistoriques « How did ancient humans… », utiliser ancient-humans-video.
+description: Produit de bout en bout une vidéo YouTube de 12 minutes pour la chaîne The Hidden Bargain (@hiddenbargain) au format « Do [Women/Men] Really [X]? What the Data Says » - choix du sujet par les chiffres, script orienté rétention fondé sur des études nommées, voix locale et gratuite VoiceStudio, images Google Flow avec la troupe de la chaîne, photos d'archives libres de droits (cinematic-film) et images 3D (open-3d-skills), montage HyperFrames, miniature, Short d'appel, fiche de publication conforme au Programme Partenaire YouTube, puis mesure dans Studio à J+2 et J+7. Utilise ce skill dès que l'utilisateur veut une nouvelle vidéo pour The Hidden Bargain, un sujet hommes-femmes ou d'attirance « données à l'appui », « what the data says », « do women really prefer… », un sujet qui rapporte des vues ou des heures de visionnage, la monétisation ou AdSense de cette chaîne, une miniature, un titre ou un Short pour elle, ou le bilan d'une vidéo publiée (clics, rétention), même s'il ne nomme pas le skill. Pour les vidéos préhistoriques « How did ancient humans… », utiliser ancient-humans-video.
 ---
 
 # What the Data Says (The Hidden Bargain)
@@ -10,7 +10,7 @@ Une croyance sur l'attirance (« women prefer tall men »), posée comme questio
 ## Langue et livrables
 
 - Répondre à l'utilisateur dans sa langue. **Script, voix, titres, miniature, description et tags en anglais américain.**
-- Un dossier de travail par vidéo (`<sujet>-en/`) à côté des précédents, et dedans `livraison/` : `video.mp4`, `short.mp4`, `thumbnail-A.jpg`, `thumbnail-B.jpg`, `titre-description-tags.txt`, `short-titre-description-tags.txt`, `chapters.md`, `credits.csv`, `publication.md`.
+- Un dossier de travail par vidéo (`<sujet>-en/`) à côté des précédents. **Le dossier de livraison est créé sur le Bureau** (demande de l'utilisateur, 22 nov. 2026) : `mkdir -p ~/Desktop/<sujet>-livraison && ln -s ~/Desktop/<sujet>-livraison <sujet>-en/livraison` (le lien garde `livraison/` pour les scripts et `ypp_lint.py`). Il contient : `video.mp4`, `short.mp4`, `thumbnail-A.jpg`, `thumbnail-B.jpg`, `titre-description-tags.txt`, `short-titre-description-tags.txt`, `chapters.md`, `credits.csv`, `publication.md`.
 - Rien n'est publié ni modifié sur YouTube par le skill : l'utilisateur colle dans Studio.
 - `<skill>` = `~/.claude/skills/what-the-data-says-video`. Sous Windows : outil Bash, `python -X utf8` si une sortie accentuée casse.
 
@@ -26,8 +26,9 @@ Une croyance sur l'attirance (« women prefer tall men »), posée comme questio
 | 6 | **6 blocs de 80 à 110 s, un chiffre à l'écran par bloc, la réponse à 9:30** | données à 8:45 : chutes à 1:58 et 4:00, 33 % vus ; version 3:19 : 58 % (8 nov. 2026) |
 | 7 | **Histoire ancienne : 30 s au plus, 2 blocs au plus** | la chute de 1:58 est l'entrée dans la préhistoire (8 nov. 2026) |
 | 8 | **Formulations prudentes, 4 à 7 sources nommées, aucune phrase recopiée** | règles « contenu à gabarit » et « annonceurs » lues le 11 nov. 2026 (`monetisation-youtube.md`) |
-| 9 | **Voix ElevenLabs en anglais, pause de 0,22 s, 165 à 175 mots/min** | pause réelle de 0,50 s, 155 mots/min ; corrigé : 165 mots/min (mesuré le 11 nov. 2026) ; 2 vidéos publiées en voix française |
+| 9 | **Voix VoiceStudio en anglais (une voix enregistrée, graine fixe), pause de 0,22 s, 165 à 175 mots/min** | pause réelle de 0,50 s, 155 mots/min ; corrigé : 165 mots/min (ElevenLabs, 11 nov. 2026) ; VoiceStudio : 171 mots/min sur 3 lignes, 2 à 3 min par ligne (22 nov. 2026) ; 2 vidéos publiées en voix française |
 | 10 | **Lit musical CC0 20 dB sous la voix ; ratio parole ≥ 0,92** | 0,80 avant ; 0,98 avec ce mixage (mesuré le 11 nov. 2026) ; 0,92 et 0,96 sur les chaînes comparables |
+| 10b | **Anti-ennui : méthode à l'écran (≤ ¼ des lignes d'un bloc), 2 lignes-chocs et un temps fort « // » par bloc, une image à 2 endroits au plus, une couleur par partie** (`structure-ecriture.md` §5) | vidéos de 12 min : 50 à 68 % encore là à 30 s, 19 à 33 % vus ; bain : 27 mises en garde, une image sur 11 plans, aucune pause de plus de 0,8 s (22 nov. 2026) |
 | 11 | **70 à 85 images Flow, 3 cadrages, coupe toutes les 2 à 2,5 s, un insert de données toutes les 20 à 25 s, contrôle en 2 passes** | 112 images, 27 refaites, 43 refus, 6 passes (bath-en, 10 nov. 2026) |
 | 12 | **Troupe fixe et couverte** (héros, héroïne, ami), tout le monde en bonhomme bâton | miniatures suggestives et personnage en silhouette noire sur les vidéos les plus vues (11 nov. 2026) |
 | 13 | **Miniature : la question du titre en jaune sur 2 lignes au-dessus de la scène, 2 variantes, test A/B** | question entière : 9,3 % ; « DO WOMEN REALLY?! » : 6,6 % (8 nov. 2026) |
@@ -46,22 +47,23 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
    python <skill>/scripts/yt/ypp_lint.py --title "Do Women Really Prefer Tall Men? What the Data Says"
    ```
    Porte : titre « ok », ≤ 60 caractères, sujet absent de la chaîne, aucun interdit, et pour chaque candidat montré : le nombre de vidéos existantes, le lien de la plus proche et ce que la nôtre apporte (aucun titre repris mot pour mot).
-2. **Angle et brief.** Agent `story-architect` : 3 angles (scène d'ouverture, premier chiffre, six jeux de données, renversement, réponse). L'utilisateur en choisit un. Écrire `brief.json` (ci-dessous), copier le `.env` et `flow/project.txt` de la vidéo précédente. Porte : `validated_by_user: true`.
+2. **Angle et brief.** Agent `story-architect` : 3 angles (scène d'ouverture, premier chiffre, six jeux de données, renversement, réponse). L'utilisateur en choisit un. Écrire `brief.json` (ci-dessous), copier `flow/project.txt` de la vidéo précédente (et le `.env` seulement pour la voix de repli ElevenLabs). Porte : `validated_by_user: true`.
 3. **Faits.** Agent `fact-checker` sur l'angle : chaque chiffre avec sa source et son lien → `facts.md`. Porte : 6 jeux de données, 4 à 7 sources, aucun `[to verify]`. Un bloc qui tombe à la vérification se remplace par un jeu vérifié (brief dans `agents.md`) ; l'utilisateur est prévenu avant le script.
 4. **Script** (`references/structure-ecriture.md`). Agent rédacteur, puis `fact-checker` sur le script.
    ```
    python <skill>/scripts/yt/script_lint.py script.md
    ```
    Porte : 0 erreur (question avant 0:15, chiffre avant 1:00, 9 chapitres, blocs de 80 à 110 s, relance toutes les 90 s au plus, formulations prudentes, sources nommées dans la voix).
-5. **Voix** (`references/voix-musique.md`), en parallèle de l'étape 6.
+5. **Voix** (`references/voix-musique.md` §2), en parallèle de l'étape 6. VoiceStudio doit être ouvert (`voicestudio status`).
    ```
    python make_shots.py --voice
-   env -u ELEVENLABS_API_KEY python <skill>/scripts/tts.py shots_voice.json --only 1,2,3,4,5,6,7,8,9,10,11,12,13,14 --out voicetest.wav     # écouter, régler voice.speed ICI (Daniel : 1,07 = 170 mots/min)
-   env -u ELEVENLABS_API_KEY python <skill>/scripts/tts.py shots_voice.json
+   python <skill>/scripts/tts.py shots_voice.json --only 1,2,3,4,5,6,7,8,9,10,11,12,13,14 --out voicetest.wav     # écouter, régler voice.speed ICI
+   python <skill>/scripts/tts.py shots_voice.json        # en arrière-plan : 2 à 3 min par ligne, reprise gratuite par le cache
    ```
-   Porte : 165 à 175 mots/min, aucun clip manquant. Code de sortie 3 (clé ou quota) : demander à l'utilisateur.
-6. **Liste des plans** (`references/images-flow.md` §1-2). Agent imagier, puis `visual-director` une fois.
+   Porte : 165 à 175 mots/min, aucun clip manquant. Code de sortie 3 (VoiceStudio fermé, ou clé/quota avec `--engine eleven`) : demander à l'utilisateur.
+6. **Liste des plans** (`references/images-flow.md` §1-2 ; photos d'archives et images 3D : `references/archives-3d.md` ; cartes, dates et extraits de sources animés `MAP`/`DATE`/`CLIP` : `references/documentaire.md`). Agent imagier, puis `visual-director` une fois. Sujet d'histoire : chercher d'abord les photos d'époque (`fetch_commons.py`), puis les placer avec `A(...)` dans `make_shots.py`.
    ```
+   python ~/.cinematic-skill/skills/cinematic-film/scripts/fetch_commons.py get --project .     # si photos.json existe
    python make_shots.py && python <skill>/scripts/prompts.py shots.json --strict
    ```
    Porte : 0 erreur, 70 à 85 images, un insert chiffré par bloc.
@@ -75,7 +77,7 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
    ```
    python <skill>/scripts/hf_build.py shots.json voice.wav timing.json hf --flow flow/<video> --split-long 2.5
    npx hyperframes check hf --json && HF_SEGMENTED_CAPTURE=true npx hyperframes render hf --workers 10 --gpu
-   (mixage du lit musical : commande de voix-musique.md §4)  ->  out.mp4
+   python <skill>/scripts/mix.py hf/renders/<rendu>.mp4 music.mp3 out.mp4      (lit 20 dB sous la voix, remonté sur les temps forts « // » ; voix-musique.md §4)
    python <skill>/scripts/yt/analyze_video.py out.mp4 check
    python make_shots.py --chapters                                   # chapters.md + la fin du Short
    ```
@@ -97,7 +99,7 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
  "subject": {"score": {"a": 3, "b": 2, "c": 3}, "seed": "do women prefer tall men", "risk_accepted": null},
  "angle": {"choice": "A", "opening_scene": "...", "first_figure": "...", "datasets": ["1 ...", "2 ...", "3 ...", "4 (reversal) ...", "5 ...", "6 ..."],
            "honest_answer": "...", "thumbnail_object": "..."},
- "voice_language": "en", "voice": {"engine": "eleven", "name": "<voix de la vidéo précédente>", "model": "eleven_multilingual_v2", "speed": 1.0},
+ "voice_language": "en", "voice": {"engine": "voicestudio", "name": "<voix enregistrée dans VoiceStudio>", "seed": 42, "speed": 1.0},
  "setting": "each scene in its own present-day place, drawn as a fully painted set with depth",
  "duration_min": 12, "music": "music.mp3 (CC0, credits.csv)", "previous_videos": ["..."], "validated_by_user": true}
 ```
@@ -110,14 +112,20 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
 | `references/sujets.md` | étape 1 : grille de notation, interdits, banque de 15 titres |
 | `references/structure-ecriture.md` | étapes 2 à 4 : plan minuté, bloc type, règles d'écriture, gabarit de `script.md` |
 | `references/images-flow.md` | étapes 6, 7 et 9 : troupe, règles d'image, Flow, refus, contrôle, miniatures |
-| `references/voix-musique.md` | étapes 5 et 8 : ElevenLabs, lit musical, mixage, porte audio |
+| `references/voix-musique.md` | étapes 5 et 8 : VoiceStudio (repli ElevenLabs), lit musical, mixage, porte audio |
+| `references/documentaire.md` | étape 6 : plans documentaires animés par code (`MAP`, `DATE`, `CLIP`, `scripts/docfx.py`), style et dosage |
+| `references/archives-3d.md` | étape 6 pour un sujet d'histoire : photos d'archives libres (`cinematic-film`), images 3D (`open-3d-skills`), crédits |
 | `references/montage.md` | étape 8 : inserts, HyperFrames, rendu, chapitres, Short, dossier de livraison |
 | `references/publication.md` | étape 9 : titre, miniature, description, Short, réglages Studio, fichiers texte |
 | `references/monetisation-youtube.md` | avant un sujet ou une miniature à risque ; avant une demande d'adhésion (règles lues le 11 nov. 2026) |
 | `references/mesure.md` | étape 10 : commandes Studio, règle de décision |
 | `references/agents.md` | avant de lancer un agent : tableau étape / agent / entrée / sortie / porte, briefs |
 
-Scripts (`scripts/`) : `make_shots.py` (gabarit à copier dans le dossier de travail), `prompts.py`, `tts.py`, `hf_build.py`, `thumb.py`, `sheets.py`, `openverse.py`, `styles.json` ; `flow/` (`flow_loop.sh`, `batch.mjs`, `browser.mjs`, `login.mjs`, `goto.mjs`, `harvest.mjs`, `peek.mjs`, `convert.py`, `harvest_sheet.py`, `kill_flow_edge.ps1`, `cdp.mjs`) ; `yt/` (`keywords.py`, `script_lint.py`, `ypp_lint.py`, `analyze_video.py`, `studio.mjs`). Tests sans réseau : `--selftest` sur `prompts.py`, `tts.py`, `thumb.py`, `yt/script_lint.py`, `yt/ypp_lint.py`, `yt/keywords.py`. `assets/cast/` : les trois références de la troupe ; `assets/example/script.md` : un script de 12 lignes pour essayer `make_shots.py` et `prompts.py`.
+Scripts (`scripts/`) : `make_shots.py` (gabarit à copier dans le dossier de travail), `prompts.py`, `tts.py`, `hf_build.py`, `mix.py` (mixage, temps forts), `docfx.py` (cartes, dates, extraits ; carte Natural Earth dans `assets/maps/`), `thumb.py`, `sheets.py`, `openverse.py`, `styles.json` ; `flow/` (`flow_loop.sh`, `batch.mjs`, `browser.mjs`, `login.mjs`, `goto.mjs`, `harvest.mjs`, `peek.mjs`, `convert.py`, `harvest_sheet.py`, `kill_flow_edge.ps1`, `cdp.mjs`) ; `yt/` (`keywords.py`, `script_lint.py`, `ypp_lint.py`, `analyze_video.py`, `studio.mjs`). Tests sans réseau : `--selftest` sur `prompts.py`, `tts.py`, `mix.py`, `hf_build.py`, `thumb.py`, `yt/script_lint.py`, `yt/ypp_lint.py`, `yt/keywords.py`. `assets/cast/` : les trois références de la troupe ; `assets/example/script.md` : un script de 12 lignes pour essayer `make_shots.py` et `prompts.py`.
+
+Sur le Mac (installé le 22 novembre 2026) : `python` = Python 3.13 du venv `~/.venvs/hidden-bargain` (Pillow, imageio-ffmpeg, librosa, soundfile, scenedetect, yt-dlp) ; `ffmpeg` et `ffprobe` dans `~/.local/bin` ; Playwright + Chromium et HyperFrames dans `~/video-tools` (`PLAYWRIGHT_DIR=~/video-tools`, pris par défaut par `flow_loop.sh`, et `npx` lancé depuis ce dossier ou avec `~/video-tools/node_modules/.bin` dans le PATH) ; Chrome dans `/Applications`. Sans PowerShell, `flow_loop.sh` ne ferme que le Chrome du profil Flow, pas celui de l'utilisateur.
+
+Ajouts du 22 novembre 2026 : l'application **VoiceStudio** (CLI `voicestudio`, backend local `127.0.0.1:3900`) ; les skills `cinematic-film` (`~/.cinematic-skill`) et `open-3d-skills` (`~/.open-3d-skills`), installés par leur `install.sh --claude` (`references/archives-3d.md`).
 
 Dépendances déjà installées sur la machine : Python 3.13 (Pillow, imageio-ffmpeg, librosa, soundfile, scenedetect), Node 24, Playwright dans `C:/Users/kamalAmmouri/Desktop/nastro`, `npx hyperframes`, yt-dlp, les skills `hand-drawn-visuals`, `hyperframes`, `yt-script`, `yt-package`, `yt-seo`, `yt-chapters`, `yt-retention`, `why-explainer-video` (lint de description de l'agent SEO).
 
@@ -126,6 +134,7 @@ Dépendances déjà installées sur la machine : Python 3.13 (Pillow, imageio-ff
 - [ ] Sujet noté et choisi par l'utilisateur ; titre au gabarit, ≤ 60 caractères, compté par `ypp_lint.py --title`
 - [ ] `script_lint.py` : 0 erreur ; `fact-checker` : aucune correction restante ; `facts.md` et `## Sources` avec 4 à 7 sources
 - [ ] Voix en anglais, 165 à 175 mots/min ; `out.mp4` : `gate … OK` ; l'utilisateur a écouté trois passages
+- [ ] Chaque photo d'archive ou image 3D : licence libre dans `credits.md`, crédit à l'écran (`caption`) et dans la description ; image 3D marquée « reconstruction »
 - [ ] `prompts.py --strict` : 0 erreur ; 70 à 85 images ; contrôle en 2 passes terminé ; aucune carte « image manquante » sur la planche finale
 - [ ] Deux miniatures 1280 × 720 regardées : question du titre lisible, aucun visage couvert, personnages couverts, ami dessiné avec un visage
 - [ ] `ypp_lint.py` : 0 erreur ; `livraison/` complet ; Short < 60 s ; heure de publication calculée ; consignes Studio rappelées

@@ -8,8 +8,10 @@ honest answer. It was built for the channel The Hidden Bargain (@hiddenbargain);
 `SKILL.md` comes from a dated measurement of that channel (`references/channel-results.md`).
 
 It covers the whole pipeline, with a code gate after each step: subject scored on numbers →
-angle and brief → fact-check → retention-oriented script → voice (ElevenLabs, per-character
-timings) → shot list → images (Google Flow driven by Playwright, fixed cast) → data inserts →
+angle and brief → fact-check → retention-oriented script → voice (local and free with
+VoiceStudio, per-character timings recovered from word timestamps; ElevenLabs kept as a fallback)
+→ shot list → images (Google Flow driven by Playwright, fixed cast; public-domain archive photos
+and 3D stills for history subjects) → data inserts →
 edit (HyperFrames, word-by-word captions, animated inserts) → music bed → thumbnail, title,
 description, tags, teaser Short → measurement in YouTube Studio at D+2 and D+7. The publication
 sheet is linted against the YouTube Partner Program rules (`scripts/yt/ypp_lint.py`,
@@ -22,7 +24,7 @@ American-English video.
 - `references/` — subjects, structure and writing, images and Flow, voice and music, edit,
   publication, measurement, monetisation rules, the agent table, the channel's measured results.
 - `scripts/` — `make_shots.py` (shot-list template), `prompts.py` (shot-list lint + Flow prompts),
-  `tts.py` (ElevenLabs with timings), `hf_build.py` (HyperFrames project; data inserts are built
+  `tts.py` (VoiceStudio or ElevenLabs, with timings), `hf_build.py` (HyperFrames project; data inserts are built
   in by GSAP: bars grow while their figure counts up), `thumb.py`, `sheets.py`, `openverse.py`
   (CC0 music), `styles.json`.
 - `scripts/flow/` — Playwright scripts that drive flow.google.com in a real Chrome.
@@ -44,8 +46,17 @@ video, or run `/what-the-data-says-video`.
 - **Python 3.13** with `pip install pillow imageio-ffmpeg librosa soundfile scenedetect yt-dlp`.
 - **Node 18+** with the `playwright` package installed in some folder; point the scripts at it
   with `PLAYWRIGHT_DIR=/path/to/that/folder`. Google Chrome must be installed.
-- **ElevenLabs**: put `ELEVENLABS_API_KEY=...` in a `.env` file of your *working* folder (never
-  in this repo; `.gitignore` excludes it).
+- **VoiceStudio** (default voice engine): the desktop app running on the same machine (its backend
+  answers on `http://127.0.0.1:3900`; set `VOICESTUDIO_URL` for another address), with one saved
+  voice whose name goes in `brief.json`. No key, no quota. See `references/voix-musique.md` §2.
+- **ElevenLabs** (fallback, `--engine eleven`): put `ELEVENLABS_API_KEY=...` in a `.env` file of
+  your *working* folder (never in this repo; `.gitignore` excludes it).
+- **For history subjects** (optional, `references/archives-3d.md`):
+  [cinematic-skill](https://github.com/Moh4696/cinematic-skill) for archive photos with their
+  licences, and [open-3d-skills](https://github.com/Moh4696/open-3d-skills) for 3D stills. Both
+  MIT, by Moh4696, installed separately:
+  `git clone --depth 1 https://github.com/Moh4696/cinematic-skill ~/.cinematic-skill && bash ~/.cinematic-skill/install.sh --claude`
+  (same for `open-3d-skills` in `~/.open-3d-skills`).
 - **HyperFrames CLI** (`npx hyperframes`) and the `hyperframes` Claude Code skill.
 - The **`hand-drawn-visuals`** skill for the data inserts
   ([faceless-video-skills](https://github.com/kamalammouri/faceless-video-skills)). Animated

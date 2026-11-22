@@ -14,11 +14,13 @@ PFILE=${FLOW_PROJECT_FILE:-flow/project.txt}
 [ -f "$PFILE" ] || { echo "no $PFILE: put the URL of the Flow project that holds the three reference images in it"; exit 2; }
 PROJECT=$(cat "$PFILE")
 SK="$(cd "$(dirname "$0")" && pwd)"
-export PLAYWRIGHT_DIR=${PLAYWRIGHT_DIR:-C:/Users/kamalAmmouri/Desktop/nastro}
+if [ -z "${PLAYWRIGHT_DIR:-}" ]; then [ -d "$HOME/video-tools/node_modules/playwright" ] && PLAYWRIGHT_DIR="$HOME/video-tools" || PLAYWRIGHT_DIR="C:/Users/kamalAmmouri/Desktop/nastro"; fi
+export PLAYWRIGHT_DIR
 LOG=batch.log; idle=0; round=0
 count() { ls "$OUT"/*.jpg "$OUT"/*.png "$OUT"/*.webp 2>/dev/null | wc -l; }
 # Edge (FLOW_CHANNEL=msedge, user request 10 Nov 2026): only the msedge windows of the Flow profile are closed, the user's own Edge stays open
-kill_chrome() { if [ "${FLOW_CHANNEL:-chrome}" = msedge ]; then powershell -NoProfile -ExecutionPolicy Bypass -File "$SK/kill_flow_edge.ps1" >/dev/null 2>&1; else powershell -NoProfile -Command "try { Stop-Process -Name chrome -Force -ErrorAction Stop } catch {}" >/dev/null 2>&1; fi; [ -n "${BPID:-}" ] && kill "$BPID" 2>/dev/null; sleep 3; }
+# macOS / Linux (22 Nov 2026): no PowerShell; only the Chrome started on the Flow profile is closed, the user's own Chrome stays open
+kill_chrome() { if ! command -v powershell >/dev/null 2>&1; then pkill -f -- "--user-data-dir=${FLOW_PROFILE:-$HOME/.flow-profile}" 2>/dev/null; elif [ "${FLOW_CHANNEL:-chrome}" = msedge ]; then powershell -NoProfile -ExecutionPolicy Bypass -File "$SK/kill_flow_edge.ps1" >/dev/null 2>&1; else powershell -NoProfile -Command "try { Stop-Process -Name chrome -Force -ErrorAction Stop } catch {}" >/dev/null 2>&1; fi; [ -n "${BPID:-}" ] && kill "$BPID" 2>/dev/null; sleep 3; }
 trap 'pkill -P $$ 2>/dev/null; kill_chrome' EXIT
 while true; do
   round=$((round+1)); before=$(count)
