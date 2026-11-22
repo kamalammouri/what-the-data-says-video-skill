@@ -1,7 +1,7 @@
 """Build a HyperFrames project (HTML rendered to video) from shots.json + voice: animated captions and motion-design titles.
 
   python hf_build.py shots.json voice.wav timing.json <project_dir> --flow flow/<video> --split-long 2.5
-                     [--no-captions] [--accent "#F2C446"] [--static-inserts]
+                     [--no-captions] [--accent "#F2C446"] [--static-inserts] [--photos assets/photos]
   then: npx hyperframes check <project_dir> --json ; npx hyperframes preview <project_dir> ; npx hyperframes render <project_dir>
 
 What it writes (the HyperFrames contract, references/format.md of the hyperframes skill):
@@ -15,12 +15,19 @@ What it writes (the HyperFrames contract, references/format.md of the hyperframe
 Data inserts: with <flow>/html/H<i>.anim.json next to the PNG (render.mjs --shots --anim), the insert is mounted as live SVG + text and
 GSAP builds it in (bars grow, figures count up, icons pop, labels fade), then it holds under a slow push-in; without that file, or with
 --static-inserts, the PNG is shown still. The PNG is always needed: it is the one read on the contact sheet and it sizes the caption fit.
-Word timings come from the ElevenLabs timing.json ({"chars", "end", "starts"}); with a plain list of starts the words are spread
+Ready-made pictures (family "archive", make_shots.A(...)): archive photos or 3D stills of any shape, framed whole over a blurred copy
+with their credit line at the top right; they move like a Flow image (same "frame" zooms and pans).
+Word timings come from tts.py's timing.json ({"chars", "end", "starts"}, VoiceStudio or ElevenLabs); with a plain list of starts the words are spread
 evenly inside each line. The music bed is NOT added here: it is mixed after the render at a measured level (references/voix-musique.md).
+Anti-boredom fields of make_shots.py (22 Nov 2026, references/structure-ecriture.md §5): "burst" = several images on one line, cut
+fast in turn; "src" = a source tag at the top left (how the figure was made, so the voice no longer says it); "grade" = the colour of
+the part (cool | warm | night | modern), a CSS filter and tint on the pictures only, never on inserts, maps or titles.
 A missing image becomes a cream card carrying the sentence and its name is printed (exit code 1): fix it before the render.
 """
 import json, pathlib, re, shutil, subprocess, sys
 import imageio_ffmpeg
+sys.path.insert(0, str(pathlib.Path(__file__).parent)); import docfx   # documentary shots: DATE, CLIP, MAP (merged 22 Nov 2026)
+DOC = {"docdate", "clipping", "docmap"}
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 W, H = 1920, 1080
@@ -31,11 +38,34 @@ def starts_from_timing(shots, timing):
     assert len(starts) == len(shots), f"{len(starts)} starts in timing.json for {len(shots)} shots: the voice was made from another script (make_shots.py --voice, then tts.py)"
     return [float(t) for t in starts]
 
+PHOTOS = pathlib.Path("assets/photos")   # --photos: where A(...) pictures live (cinematic-film fetch_commons.py downloads there)
+
+def framed(im, caption=""):
+    """An archive photo or 3D still of any shape on the 16:9 canvas: whole picture (never cropped, never stretched) over a
+    blurred, darkened copy of itself, credit line small at the top right (the captions own the bottom band)."""
+    from PIL import ImageFilter, ImageEnhance
+    im = im.convert("RGB"); r = min(W / im.width, H / im.height)
+    bg = im.resize((max(W, int(im.width * H / im.height)), max(H, int(im.height * W / im.width))))
+    bg = bg.crop(((bg.width - W) // 2, (bg.height - H) // 2, (bg.width - W) // 2 + W, (bg.height - H) // 2 + H))
+    bg = ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(40))).enhance(0.45)
+    fg = im.resize((int(im.width * r), int(im.height * r))); bg.paste(fg, ((W - fg.width) // 2, (H - fg.height) // 2))
+    if caption:
+        d = ImageDraw.Draw(bg)
+        try: f = ImageFont.truetype("Arial.ttf", 22)
+        except OSError: f = ImageFont.load_default()
+        tw = d.textlength(caption, font=f); d.rectangle((W - tw - 36, 18, W - 14, 54), fill=(0, 0, 0)); d.text((W - tw - 25, 24), caption, font=f, fill=(235, 235, 235))
+    return bg
+
 def render(s, flow_dir):
-    """The picture of a shot: a data insert drawn beforehand by hand-drawn-visuals, or the Flow image. None when it is missing."""
-    names = [f"html/H{s['i']:04d}.png"] if s["family"] == "html" else [f"{s.get('file') or 'F%03d' % s['i']}{e}" for e in (".png", ".jpg", ".webp")]
-    f = next((flow_dir / n for n in names if (flow_dir / n).exists()), None)
-    return Image.open(f).convert("RGB").resize((W, H)) if f else None
+    """The picture of a shot: a data insert drawn beforehand by hand-drawn-visuals, the Flow image, or a ready-made picture
+    (family "archive": in --flow, then in --photos). None when it is missing."""
+    names = [f"html/H{s['i']:04d}.png"] if s["family"] == "html" else [f"{s.get('file') or 'F%03d' % s['i']}{e}" for e in (".png", ".jpg", ".jpeg", ".webp")]
+    dirs = [flow_dir, PHOTOS] if s["family"] == "archive" else [flow_dir]
+    f = next((d / n for d in dirs for n in names if (d / n).exists()), None)
+    if not f and s["family"] == "archive":   # fetch_commons.py names its downloads P01_<title>.jpg: match on the id prefix
+        f = next((p for d in dirs if d.exists() for p in sorted(d.glob(f"{s.get('file')}_*")) if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".tif", ".tiff")), None)
+    if not f: return None
+    return framed(Image.open(f), s.get("caption", "")) if s["family"] == "archive" else Image.open(f).convert("RGB").resize((W, H))
 
 def fallback(text):
     im = Image.new("RGB", (W, H), (245, 239, 224)); d = ImageDraw.Draw(im)
@@ -58,6 +88,17 @@ FRAMES = {   # (scale from, scale to, x from, x to) in px of the 1920 canvas; y 
 
 SPLIT = 0.0   # seconds; --split-long N splits every moving clip longer than N into two framings (0 = off)
 SUBCUT = {"wide": "zoom", "zoom": "pan-left", "zoom-out": "zoom", "pan-left": "zoom", "pan-right": "zoom", "left": "zoom", "right": "zoom"}
+
+GRADES = {   # CSS filter on the picture + a tint laid over it (soft-light): one look per part of the video
+    "cool":   ("saturate(0.8) brightness(1.02) contrast(1.05) hue-rotate(-8deg)", "rgba(70,130,200,.28)"),
+    "modern": ("saturate(1.05) brightness(1.08) contrast(1.04)", "rgba(150,200,255,.22)"),
+    "warm":   ("saturate(1.15) brightness(1.02) contrast(1.03)", "rgba(255,150,60,.25)"),
+    "night":  ("saturate(0.6) brightness(0.72) contrast(1.12) hue-rotate(-20deg)", "rgba(20,40,110,.35)"),
+}
+
+def pill(s):
+    """Source tag at the top left: the method of the figure on screen (the voice says the figure, the screen says how it was made)."""
+    return f'<div class="srctag"><b>SOURCE</b> {esc(s["src"])}</div>' if s.get("src") else ""
 
 def esc(t): return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
@@ -127,6 +168,14 @@ def chapter_scene(cid, shots_in, t0, assets_rel, accent):
     clips, tw = [], []; live = False
     for z, (s, a, b) in enumerate(shots_in, 1):
         st, du = a - t0, max(b - a, 0.4); sid = f"{cid}-s{s['i']}"
+        if s["family"] in DOC:   # documentary shots drawn by code (docfx.py): date card, source clipping, animated map
+            d = s.get("doc") or {}
+            if s["family"] == "docdate": h, t = docfx.date_html(sid, d, accent, st, du)
+            elif s["family"] == "clipping": h, t = docfx.clip_html(sid, d, assets_rel.get(s["i"]), st, du)
+            else: h, t = docfx.map_html(sid, d, accent, st, du)
+            clips.append(f'<div id="{sid}" class="clip" data-start="{st:.3f}" data-duration="{du:.3f}" style="z-index:{z}">{h}{pill(s)}</div>'); tw.extend(t)
+            if s.get("src"): tw.append(f'tl.fromTo("#{sid} .srctag", {{opacity: 0, x: -24}}, {{opacity: 1, x: 0, duration: 0.35, ease: "power2.out"}}, {st + 0.4:.3f});')
+            continue
         if s["family"] == "title":
             ws = s["title"].split()
             spans = "".join(f'<span class="w">{esc(w)}</span> ' for w in ws[:-1]) + f'<span class="w acc">{esc(ws[-1])}</span>'
@@ -136,11 +185,16 @@ def chapter_scene(cid, shots_in, t0, assets_rel, accent):
         else:
             moving = s["family"] != "html"; fr = s.get("frame", "wide")
             parts = [(st, du, fr)]
+            if s["family"] == "burst":   # one line, several images cut fast in turn (frames alternate so each cut also moves differently)
+                k = len(s["burst"]); h = du / k; parts = []
+                for n in range(k): parts.append((st + n * h, h, fr)); fr = SUBCUT.get(fr, "zoom")
             if moving and SPLIT and du > SPLIT:   # --split-long: a long clip becomes ceil(du/N) framings of the same image (the reference cuts every 2 s)
                 k = -int(-du // SPLIT); h = du / k; parts = []
                 for n in range(k): parts.append((st + n * h, h, fr)); fr = SUBCUT.get(fr, "zoom")
             for n, (pst, pdu, pfr) in enumerate(parts):
                 pid = sid if n == 0 else f"{sid}{chr(97 + n)}"; src = assets_rel[s["i"]]
+                if isinstance(src, list): src = src[n % len(src)]
+                gcls = f' g-{s["grade"]}' if moving and s.get("grade") in GRADES else ""
                 fit = FIT.get(src) if not moving else None   # static insert whose labels would sit under the captions
                 bg, ist = (f";background:{fit[1]}", f' style="transform:scale({fit[0]:.3f});transform-origin:50% 0"') if fit else ("", "")
                 a = ANIM.get(s["i"]) if not moving else None
@@ -148,8 +202,9 @@ def chapter_scene(cid, shots_in, t0, assets_rel, accent):
                     live = True; bgc = fit[1] if fit else ("#26303c" if a["dark"] else "#f5efe0")
                     clips.append(f'<div id="{pid}" class="clip" data-start="{pst:.3f}" data-duration="{pdu:.3f}" style="z-index:{z};background:{bgc}"><div class="kb"><div class="ins{" dark" if a["dark"] else ""}"{ist}>{a["html"].replace("__ID__", pid)}</div></div></div>')
                     tw.extend(insert_tweens(pid, a, pst, pdu)); continue
-                clips.append(f'<div id="{pid}" class="clip" data-start="{pst:.3f}" data-duration="{pdu:.3f}" style="z-index:{z}{bg}"><div class="kb"><img src="{src}" alt=""{ist}></div></div>')
+                clips.append(f'<div id="{pid}" class="clip{gcls}" data-start="{pst:.3f}" data-duration="{pdu:.3f}" style="z-index:{z}{bg}"><div class="kb"><img src="{src}" alt=""{ist}></div>{pill(s)}</div>')
                 if moving: tw.append(kb_tween(f"#{pid} .kb", pfr, pst, pdu))
+                if s.get("src") and n == 0: tw.append(f'tl.fromTo("#{pid} .srctag", {{opacity: 0, x: -24}}, {{opacity: 1, x: 0, duration: 0.35, ease: "power2.out"}}, {pst + 0.4:.3f});')
     return f"""<template>
 <style>
 #root {{ position: absolute; inset: 0; background: #0b0f1a; overflow: hidden; }}
@@ -159,7 +214,11 @@ def chapter_scene(cid, shots_in, t0, assets_rel, accent):
 .title .tt {{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 160px; }}
 .title h1 {{ font-family: Oswald, Inter, sans-serif; font-weight: 700; font-size: 128px; line-height: 1.05; color: #fff; letter-spacing: 0.02em; text-transform: uppercase; text-shadow: 0 6px 24px rgba(0,0,0,.6); margin: 0; }}
 .title .acc {{ color: {accent}; }}
+.srctag {{ position: absolute; left: 36px; top: 30px; max-width: 1100px; padding: 10px 18px; border-left: 6px solid {accent}; background: rgba(8,10,16,.78); color: #e8e8e8; font-family: Inter, sans-serif; font-size: 26px; font-weight: 500; line-height: 1.3; z-index: 3; }}
+.srctag b {{ color: {accent}; font-weight: 800; letter-spacing: .08em; margin-right: 10px; }}
+{"".join(f".g-{g} .kb img {{ filter: {f}; }} .g-{g} .kb::after {{ content: ''; position: absolute; inset: 0; background: {c}; mix-blend-mode: soft-light; }} " for g, (f, c) in GRADES.items())}
 {FONT_CSS if live else ""}
+{docfx.CSS}
 .ins {{ position: absolute; left: 0; top: 0; width: {W}px; height: {H}px; font-family: 'Patrick Hand', sans-serif; font-size: 16px; font-weight: 400; line-height: normal; color: #1e1b16; }}
 .ins.dark {{ color: #f5efe0; }}
 .ins svg.layer {{ position: absolute; left: 0; top: 0; width: {W}px; height: {H}px; }}
@@ -213,9 +272,9 @@ window.__timelines["captions"] = tl;
 """
 
 def main():
-    a = [x for x in sys.argv[1:] if not x.startswith("--") and (sys.argv[sys.argv.index(x) - 1] not in ("--flow", "--accent", "--split-long"))]
+    a = [x for x in sys.argv[1:] if not x.startswith("--") and (sys.argv[sys.argv.index(x) - 1] not in ("--flow", "--accent", "--split-long", "--photos"))]
     opt = lambda k, d=None: sys.argv[sys.argv.index(k) + 1] if k in sys.argv else d
-    globals()["SPLIT"] = float(opt("--split-long", 0))
+    globals()["SPLIT"] = float(opt("--split-long", 0)); globals()["PHOTOS"] = pathlib.Path(opt("--photos", "assets/photos"))
     shots_f, voice, timing_f, proj = a[0], a[1], a[2], pathlib.Path(a[3])
     flow_dir = pathlib.Path(opt("--flow", "flow")); accent = opt("--accent", "#F2C446")
     shots = json.load(open(shots_f, encoding="utf-8")); timing = json.load(open(timing_f, encoding="utf-8"))
@@ -231,7 +290,24 @@ def main():
     # images: each Flow file and each data insert copied once
     assets_rel, done, missing = {}, {}, []
     for s in shots:
-        if s["family"] == "title": continue
+        if s["family"] == "title" or s["family"] in DOC:
+            if s["family"] == "clipping" and (s.get("doc") or {}).get("file"):   # the real page behind a source clipping
+                pg = s["doc"]["file"]
+                if pg not in done:
+                    im = render({"family": "archive", "file": pg, "i": s["i"]}, flow_dir)
+                    if im is None: missing.append(pg)
+                    else: im.convert("RGB").save(proj / "assets" / f"{pg}.png", compress_level=1); done[pg] = f"assets/{pg}.png"
+                if pg in done: assets_rel[s["i"]] = done[pg]
+            continue
+        if s["family"] == "burst":   # each image of the burst copied once, like any Flow image
+            rel = []
+            for f in s["burst"]:
+                if f not in done:
+                    im = render({"family": "scene", "file": f, "i": s["i"]}, flow_dir)
+                    if im is None: missing.append(f); im = fallback(s["sentence"])
+                    im.convert("RGB").resize((W, H)).save(proj / "assets" / f"{f}.png", compress_level=1); done[f] = f"assets/{f}.png"
+                rel.append(done[f])
+            assets_rel[s["i"]] = rel; continue
         key = s.get("file") or f"i{s['i']}"
         if key not in done:
             im = render(s, flow_dir)

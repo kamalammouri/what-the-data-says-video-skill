@@ -4,7 +4,10 @@ from PIL import Image, ImageDraw, ImageFont
 src, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]); out.mkdir(exist_ok=True)
 cols, rows = 4, 3; W, H = 480, 270
 files = sorted({p.stem: p for p in sorted(src.glob("*.jpg")) + sorted(src.glob("*.png"))}.values())  # one tile per image: convert.py leaves F001.jpg next to F001.png
-f = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 30)
+try: f = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", 30)
+except OSError:   # macOS / Linux
+    try: f = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 30)
+    except OSError: f = ImageFont.load_default()
 for n in range(0, len(files), cols*rows):
     chunk = files[n:n+cols*rows]
     sheet = Image.new("RGB", (cols*W, rows*(H+40)), "white"); d = ImageDraw.Draw(sheet)

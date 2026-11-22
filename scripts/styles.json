@@ -1,5 +1,5 @@
 {
- "_doc": "The one drawing style of The Hidden Bargain. prompts.py assembles every Flow prompt from it: prefix + one sheet per cast member (with the costume of the shot's era) + reference line + crowd rule + setting + framing and scene + background + suffix. cast.<name>.ref is the file name of the reference image in the Flow project library (copies in assets/cast/), attached as an ingredient by flow/batch.mjs. costumes.modern never carries a weapon (rule: no spear in a modern scene). The reference images show a spear and, for the heroine, a short sleeveless dress: the costume text overrides them, and Image QC checks it.",
+ "_doc": "The one drawing style of The Hidden Bargain. prompts.py assembles every Flow prompt from it: prefix + one sheet per cast member (with the costume of the shot's era) + reference line + crowd rule + setting + framing and scene + background + suffix. cast.<name>.ref is the file name of the reference image in the Flow project library (copies in assets/cast/), attached as an ingredient by flow/batch.mjs. costumes.modern never carries a weapon (rule: no spear in a modern scene). The reference images show a spear and, for the heroine, a short sleeveless dress: the costume text overrides them, and Image QC checks it. costumes.medieval (22 Nov 2026, history subjects such as medieval bathing): long sleeves, covered, no weapon.",
  "default": "data-couple",
  "styles": {
   "data-couple": {
@@ -10,17 +10,29 @@
     "hero": {
      "ref": "reference.png",
      "sheet": "a man drawn as a simple white stick-figure cartoon, a smooth white round head with two small black dot eyes and thin expressive eyebrows, a small hand-drawn mouth, a short blond pompadour quiff and a small brown mustache, a thin white body with stick-thin limbs, {costume}",
-     "costumes": {"modern": "wearing a plain grey hoodie and blue jeans, empty-handed, never holding a spear", "tribe": "wearing a ragged brown fur tunic that covers his chest, barefoot"}
+     "costumes": {
+      "modern": "wearing a plain grey hoodie and blue jeans, empty-handed, never holding a spear",
+      "tribe": "wearing a ragged brown fur tunic that covers his chest, barefoot",
+      "medieval": "wearing a long-sleeved brown medieval wool tunic belted at the waist, dark hose and simple leather shoes, empty-handed, never holding a weapon"
+     }
     },
     "heroine": {
      "ref": "heroine.png",
      "sheet": "a woman drawn as the same simple white stick-figure cartoon, a smooth white round head with two small black dot eyes and thin expressive eyebrows, long wavy red hair, red lips, rosy cheeks, a thin white body with stick-thin limbs, {costume}, standing or sitting in a calm natural pose",
-     "costumes": {"modern": "wearing a long-sleeved green sweater and a long skirt down to her ankles, empty-handed", "tribe": "wearing a long brown fur dress with long sleeves, a round neckline at the base of the neck and a hem down to her ankles, barefoot"}
+     "costumes": {
+      "modern": "wearing a long-sleeved green sweater and a long skirt down to her ankles, empty-handed",
+      "tribe": "wearing a long brown fur dress with long sleeves, a round neckline at the base of the neck and a hem down to her ankles, barefoot",
+      "medieval": "wearing a long-sleeved medieval blue wool dress down to her ankles with a high round neckline and a plain white linen headscarf over her hair, empty-handed"
+     }
     },
     "friend": {
      "ref": "second-male.png",
      "sheet": "a man drawn as the same simple stick-figure cartoon, a smooth round head in a flat even warm brown skin colour, two small oval eyes with a tiny white highlight, a friendly clearly drawn face, short tight black curly hair, a short neat black beard, a thin body with stick-thin limbs in the same warm brown colour, {costume}, never a black silhouette, never a caricature",
-     "costumes": {"modern": "wearing a plain dark red sweater and jeans, empty-handed, never holding a spear", "tribe": "wearing a plain grey wolf-fur tunic that covers his chest, barefoot"}
+     "costumes": {
+      "modern": "wearing a plain dark red sweater and jeans, empty-handed, never holding a spear",
+      "tribe": "wearing a plain grey wolf-fur tunic that covers his chest, barefoot",
+      "medieval": "wearing a long-sleeved dark green medieval wool tunic belted at the waist, dark hose and simple leather shoes, empty-handed, never holding a weapon"
+     }
     }
    },
    "crowd": "Any other people are small plain stick figures with round heads and dot eyes, fully clothed, no detailed or realistic humans anywhere.",

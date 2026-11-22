@@ -12,6 +12,11 @@ Why each rule exists (Studio, The Hidden Bargain, 8 and 11 Nov 2026; references/
   the data promised by the title came at 8:45 in the 12-minute « Black Men » video: viewers left at 1:58 and 4:00, 33 % watched;
   the first question was asked at 65 s in bath-en, the channels that work ask it before 15 s;
   lines copied from a reference channel in every script are what YouTube calls templated content.
+Anti-boredom rules (22 Nov 2026, the bath video: chapter 2 spent 4 lines dating a manuscript, chapter 7 4 lines on how a poll was run
+before its number and 4 on its limits after, every line 11 words, no pause; references/structure-ecriture.md §5):
+  method and caveat lines (how a source was made, what it can't tell) at most a quarter of a chapter: the method goes on screen (src);
+  2 punch lines of 5 words or less and a spread of line lengths in every block; one beat (" //") or more in every block;
+  a teaser (a promise kept later) in every block, as a warning.
 """
 import re, sys
 
@@ -24,6 +29,9 @@ HEDGE = (r"\?$|on average|in (?:this|that|the|their|one|another|every) (?:data|s
          r"\bsay they\b|\brated\b|\breported\b|\banswered\b|percent|\bin (?:ten|five|four|three|two)\b|the (?:claim|idea|belief|stereotype|myth|rumor|story)|"
          r"people (?:say|think|believe|assume)|you(?:'ve| have) heard|supposed|tend(?:s|ed)? to|more likely|less likely|(?:the|those|these) (?:women|men) (?:in|who|they)")
 HISTORY = r"\b(ancient|prehistoric|stone age|ice age|cavem[ae]n|hunter-gatherers?|tribes?|ancestors?|romans?|rome|egypt\w*|greeks?|medieval|middle ages|victorian|pharaohs?|thousand years ago|centur(?:y|ies) ago)\b"
+METHOD = r"\b(published|edition|editors?|printed|reprinted|transcrib\w*|translat\w*|manuscript|copied|hand(?:writing)?\b|poll ran|panel|respondents|self-reported|sample|surveyed|questionnaire|answered|methodology|footnote|archive[sd]?)\b"
+CAVEAT = r"(\bcatch\b|\blimits?\b|can't tell|cannot tell|doesn't prove|does not prove|won't promise|safe way|be careful|careful with|\bhides?\b|doesn't mean|does not mean|can't divide|we don't know|nobody knows)"
+TEASER = r"(hold (?:on to )?that|keep that|remember (?:that|this)|in a (?:minute|moment)|later|by the end|wait until|you're about to|coming up|the strangest|the real reason|here's where|that's not the end|stay with)"
 FORMULAS = ["you will be shocked by a terrifying truth", "to understand the scale of this nightmare", "this takes us to the most shocking part",
             "the biggest lie planted in your mind", "lets travel to", "this brings us back to the very first image", "the truth is exactly the opposite",
             "until the turning point arrived", "changed the face of humanity", "you are the winning version"]   # lines of the reference channel reused in every old script
@@ -35,6 +43,21 @@ def has_number(s):
     return bool(re.search(r"\d", s)) or any(m.lower() not in ("one", "zero") for m in re.findall(rf"\b{NUMW}(?:[\s-]+(?:and\s+|point\s+)?{NUMW})*\b", s, flags=re.I))
 def unsafe(line): return bool(re.search(GENERAL, line, flags=re.I)) and not re.search(HEDGE, line.strip(), flags=re.I)
 def mmss(words): t = words / WPM * 60; return f"{int(t) // 60}:{int(t) % 60:02d}"
+
+def beat(l): return l.rstrip().endswith("//")
+def unbeat(l): return l.rstrip().removesuffix("//").rstrip()
+
+def boredom(head, ls):
+    """Errors and warnings of one block on the anti-boredom rules (ls: raw lines, beats still marked)."""
+    e, w = [], []; clean = [unbeat(l) for l in ls]; n = len(clean) or 1
+    drag = [k for k, l in enumerate(clean, 1) if re.search(METHOD, l, flags=re.I) or re.search(CAVEAT, l, flags=re.I)]
+    if len(drag) > max(2, n // 4): e.append(f"{head}: {len(drag)} of {n} lines explain a method or a limit (lines {drag[:8]} of the block): a quarter at most; put the method on screen (make_shots src(...)) and keep one limit, said once")
+    lens = [nwords(l) for l in clean]; mean = sum(lens) / n; sd = (sum((x - mean) ** 2 for x in lens) / n) ** 0.5
+    if sum(1 for x in lens if x <= 5) < 2: e.append(f"{head}: {sum(1 for x in lens if x <= 5)} punch line of 5 words or less, 2 or more (a figure alone, « Most days. Not every day. »)")
+    if sd < 3.5: e.append(f"{head}: every line about {mean:.0f} words (spread {sd:.1f}, 3.5 or more): mix punch lines and long ones, the ear tunes out a steady length")
+    if not any(beat(l) for l in ls): e.append(f"{head}: no beat, end the line of the reveal with « // » (a silence the music fills, the picture holds)")
+    if not any(re.search(TEASER, l, flags=re.I) for l in clean): w.append(f"{head}: no teaser (« hold on to that number », « you're about to… ») promising a payoff later in the video")
+    return e, w
 
 def parse(text):
     title = next((l[2:].strip() for l in text.splitlines() if l.startswith("# ")), "")
@@ -66,14 +89,15 @@ def relance_gap(lines, limit):
 
 def lint(text, minutes=12.0):
     errs, warns = [], []
-    title, chapters, sources = parse(text)
+    title, raw, sources = parse(text)
+    chapters = [(h, [unbeat(l) for l in ls]) for h, ls in raw]
     lines = [l for _, ls in chapters for l in ls]; total = sum(map(nwords, lines)); spoken = norm(" ".join(lines))
     errs += title_errors(title)
     if not lines: return errs + ["no spoken line under a '## Chapter N — name' heading"], [], {}
     # size and rhythm
     if not minutes * 160 <= total <= minutes * 180: errs.append(f"{total} words for {minutes:g} min: {minutes * 160:.0f} to {minutes * 180:.0f} expected (165-175 words a minute)")
     wps = total / len(lines)
-    if not 11 <= wps <= 13: errs.append(f"{wps:.1f} words per sentence, 11 to 13 expected")
+    if not 9 <= wps <= 13: errs.append(f"{wps:.1f} words per sentence, 9 to 13 expected (punch lines bring it under 11, 22 Nov 2026)")
     for n, l in enumerate(lines, 1):
         if nwords(l) > 25: errs.append(f"line {n}: {nwords(l)} words, 25 at most (one line = one voice clip = one picture)")
         if unsafe(l): errs.append(f"line {n}: a claim about a whole group with no hedge (« on average », « in this data set », « the women in the study »): {l!r}")
@@ -100,6 +124,7 @@ def lint(text, minutes=12.0):
             if not 225 <= w <= 315: errs.append(f"{head}: {w} words ({w / WPM * 60:.0f} s), a block is 80 to 110 s (225 to 315 words)")
             if not any(has_number(l) for l in ls): errs.append(f"{head}: no figure in this block (one study or data set per block, its number on screen)")
             if not (ls[-1].endswith("?") or re.match(r"(But|So|And)\b", ls[-1])): warns.append(f"{head}: the last line does not open a loop to the next block (a question, or But / So / And)")
+            be, bw = boredom(head, raw[k - 1][1]); errs += be; warns += bw
     if len(chapters) == 9 and not 9.0 * WPM <= clock[7][1] <= 10.0 * WPM: warns.append(f"the honest answer starts at {mmss(clock[7][1])}, 9:30 expected")
     if not lines[-1].endswith("?"): errs.append("the last line is the question to the viewer: it ends with « ? »")
     if g := relance_gap(lines, 1.5 * WPM): errs.append(f"{g[0] / WPM * 60:.0f} s without a question or a line opening with « But » (lines {g[1]} to {g[2]}): one every 60 to 90 s")
@@ -115,7 +140,7 @@ def lint(text, minutes=12.0):
         if source_name(s) not in spoken: errs.append(f"source not named in the voice: {s.split(',')[0]!r}")
     you = sum(1 for w in re.findall(r"[a-z']+", " ".join(lines).lower()) if w in ("you", "your", "yours", "yourself", "you're", "you've", "you'll", "you'd"))
     if 100 * you / total < 2: warns.append(f"{100 * you / total:.1f} « you » per 100 words: talk to the viewer (2 or more)")
-    m = {"words": total, "sentences": len(lines), "words_per_sentence": round(wps, 1), "minutes_at_170": round(total / WPM, 1), "you_per_100w": round(100 * you / total, 1),
+    m = {"beats": sum(1 for _, ls in raw for l in ls if beat(l)), "words": total, "sentences": len(lines), "words_per_sentence": round(wps, 1), "minutes_at_170": round(total / WPM, 1), "you_per_100w": round(100 * you / total, 1),
          "figures_per_min": round(sum(1 for l in lines if has_number(l)) / (total / WPM), 1), "questions": sum(1 for l in lines if l.endswith("?")), "clock": clock}
     return errs, warns, m
 
@@ -136,6 +161,15 @@ def selftest():
     for must_not in ("question of the title", "no figure after the question", "must end on the turn", "template"): assert must_not not in e, (must_not, e)
     assert "question of the title is not said" in " | ".join(lint(ex.replace("So, do women really prefer tall men?", "So, do they?"), 0.3)[0])
     assert source_name("Bruch & Newman, 2018, x") == "bruch and newman" and source_name("Walter et al., 2020, x") == "walter" and norm("Lee  &  McKinnish") == "lee and mckinnish"
+    old7 = ["In twenty eighteen, the polling firm Ipsos asked Americans about hygiene and cleanliness.", "The online poll ran from August third to sixth that year.",
+            "About one thousand and five adults answered, all of them eighteen or older.", "Here's the headline number they published that September.",
+            "The average American showers six point four times a week.", "Six point four.", "Now here's the limit on that number.", "Those showers were self-reported, in an online panel.",
+            "So it can't tell you what any one person does.", "Now here's the bigger catch when you compare it with the past."]
+    e, w = boredom("Chapter 7", old7); e = " | ".join(e)
+    for must in ("explain a method or a limit", "punch line", "no beat"): assert must in e, (must, e)
+    new7 = ["So how often do you actually use it?", "Take a guess before I tell you.", "Every day? Twice a day?", "Six point four times a week. //", "Most days. Not every day.",
+            "Hold on to that number, because you're about to put it on a scale.", "And the number you'd really want, how often a family washed at home, left no count in any of these records."]
+    assert boredom("Chapter 7", new7) == ([], []), boredom("Chapter 7", new7)
     print("selftest ok")
 
 if __name__ == "__main__":
