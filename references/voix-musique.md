@@ -46,6 +46,13 @@ python <skill>/scripts/openverse.py "calm ambient pad" --out audio/music --n 4 -
 
 ## 4. Le mixage (après le rendu, une commande)
 
+**Depuis le 23 novembre 2026, la musique joue par moments, comme dans un film** (choix de l'utilisateur après la vidéo du bain : « j'aime pas la musique sur la vidéo complète, il faut l'utiliser sur quelques parties comme les films »). C'est le mode par défaut de `python <skill>/scripts/mix.py hf/renders/<rendu>.mp4 music.mp3 out.mp4` :
+- **Où joue la musique :** sous l'accroche (les 12 premières secondes), à chaque changement de chapitre (de 2,5 s avant à 5 s après), sur chaque temps fort `//` (le silence, puis 3,5 s sous la ligne suivante) et sous les 35 dernières secondes. Ailleurs, la voix est seule.
+- **Niveau :** −28 LUFS (`--level`), environ 14 dB sous la voix. Entrée en 0,15 s, sortie en 1,2 s.
+- **Mesuré sur la vidéo du bain remixée (23 nov.) :** musique sur environ 15 % de la durée, ratio parole 0,943, pause maximale 0,56 s.
+- **Contrôle :** `analyze_video.py out.mp4 check --cues`. Le seuil du ratio y est de 0,78, celui d'une voix seule, avec toujours aucune pause de plus de 0,7 s.
+- **L'ancien lit continu reste disponible** avec `--continuous`, décrit ci-dessous.
+
 **Depuis le 22 novembre 2026 : `python <skill>/scripts/mix.py hf/renders/<rendu>.mp4 music.mp3 out.mp4`** fait la même chaîne que la commande ci-dessous, et remonte en plus le lit de 8 dB (`--lift`) sur chaque temps fort (ligne de `script.md` terminée par ` //`, silence de 0,9 s laissé par `tts.py`), avec des rampes de 0,15 s et 0,35 s. La pause s'entend comme une respiration, pas comme un trou, et le contrôle du §5 reste valable. Sans temps fort, le résultat est identique à la commande ci-dessous. Pourquoi : `structure-ecriture.md` §5.
 
 Le rendu HyperFrames ne contient que la voix. La commande ajoute le lit 20 dB sous la voix, sans sidechain (c'est lui qui vidait les pauses), et sort à −14 LUFS avec un pic vrai de −1,5 dB, le niveau de lecture de YouTube. `<fin-3>` = la durée de la vidéo moins 3 s (fondu de sortie du lit seulement : la dernière ligne est la question au spectateur).

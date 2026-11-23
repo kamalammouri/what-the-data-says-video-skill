@@ -49,7 +49,7 @@ def D(spec, dark=False): return {"family": "html", "html": spec, "dark": dark}
 def card(big, small, icon, layout="left", colour="terra"): return D({"type": "card", "icon": icon, "big": big, "small": small, "layout": layout, "colour": colour})
 def T(title): return D({"type": "title", "title": title})
 def BURST(items, frame="zoom"):
-    """items = keys of images made earlier, or new S/N/M/A specs (each becomes its own image, as on its own line)."""
+    """items = keys of images made earlier, or ready-made pictures given with a file (A(...)); a new Flow image needs its own line first."""
     return {"family": "burst", "keys": list(items), "frame": frame}
 def src(spec, text): return {**spec, "src": text}
 def grade(spec, g): return {**spec, "grade": g}
@@ -133,9 +133,10 @@ def main():
         for line, spec in zip(lines, specs):
             pause = BEAT if line.rstrip().endswith("//") else 0; line = line.rstrip().removesuffix("//").rstrip()
             if spec["family"] == "burst":
-                for it in [k for k in spec["keys"] if isinstance(k, dict)]:   # a new image inside the burst: registered like a line of its own
+                for it in [k for k in spec["keys"] if isinstance(k, dict)]:   # a ready-made picture inside the burst (A(...) or an existing file)
+                    assert it.get("photo"), f"BURST: a new Flow image ({it.get('key')!r}) gets no prompt inside a burst; give it its own line first, then BURST its key (line {line!r})"
                     assert it["key"] not in files, f"duplicate key {it['key']!r}"
-                    files[it["key"]] = it.get("photo") or f"F{sum(1 for v in files.values() if is_flow(v)) + 1:03d}"
+                    files[it["key"]] = it["photo"]
                     last[it["key"]] = {"file": files[it["key"]], "family": it["family"], "sentence": line, **{k: it[k] for k in ("scene", "composition", "cast", "era", "caption") if it.get(k)}}
                 spec = {**spec, "keys": [k["key"] if isinstance(k, dict) else k for k in spec["keys"]]}
                 miss = [k for k in spec["keys"] if k not in last]
@@ -172,7 +173,7 @@ def main():
             for s, st in zip(shots, starts): s["start"] = round(float(st), 3)
     # the rules of the structure that depend on the pictures (the words are checked by yt/script_lint.py)
     bounds = [c["shot"] - 1 for c in chap_index] + [len(shots)]
-    has_figure = lambda s: s["family"] == "html" and s["html"].get("type") != "title" and re.search(r"\d", json.dumps(s["html"]))
+    has_figure = lambda s: s["family"] == "html" and s["html"].get("type") != "title" and re.search(r"\d", json.dumps(s["html"], ensure_ascii=False))
     for c, a, b in zip(chap_index[:-2], bounds, bounds[1:]):     # chapter 1 and every block: a figure on screen
         assert any(has_figure(s) for s in shots[a:b]), f"chapter {c['chapter']} ({c['title']}): no figure on screen (add a D(...) insert)"
     opening = next(s["file"] for s in shots if s.get("file"))

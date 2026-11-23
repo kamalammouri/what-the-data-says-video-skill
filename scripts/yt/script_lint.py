@@ -39,6 +39,14 @@ FORMULAS = ["you will be shocked by a terrifying truth", "to understand the scal
 def norm(s): return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", "", s.lower().replace("’", "'").replace("'", "").replace("&", " and "))).strip()
 def source_name(s): return norm(re.sub(r"\bet al\b\.?", "", s.split(",")[0]))   # "Bruch & Newman" is said "Bruch and Newman", "Walter et al." is said "Walter and colleagues" (11 Nov 2026)
 def nwords(s): return len(s.split())
+ONES = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split()
+TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()
+def spell(n):
+    """0-99 in words, as the voice says them ("30" in a title is said "thirty"; 23 Nov 2026)."""
+    n = int(n)
+    if n < 20: return ONES[n]
+    return TENS[n // 10] + ("" if n % 10 == 0 else " " + ONES[n % 10])
+def as_said(s): return norm(re.sub(r"\b\d{1,2}\b", lambda m: spell(m.group(0)), s.replace("-", " ")))
 def has_number(s):
     return bool(re.search(r"\d", s)) or any(m.lower() not in ("one", "zero") for m in re.findall(rf"\b{NUMW}(?:[\s-]+(?:and\s+|point\s+)?{NUMW})*\b", s, flags=re.I))
 def unsafe(line): return bool(re.search(GENERAL, line, flags=re.I)) and not re.search(HEDGE, line.strip(), flags=re.I)
@@ -106,10 +114,10 @@ def lint(text, minutes=12.0):
         if re.search(r"\bsubscribe\b|in this video|hit the bell", l, flags=re.I): warns.append(f"line {n}: channel talk in the voice (the end screen and the pinned comment do that job)")
     # the opening: the question before 0:15, the first figure before 1:00, then « but »
     if len(chapters) != 9: errs.append(f"{len(chapters)} chapters, 9 expected: 1 opening, 6 blocks, 1 honest answer, 1 return to the opening scene")
-    q = norm(title.split("?")[0]); ch1 = chapters[0][1]; pos = 0; q_at = None; num_at = None
+    q = as_said(title.split("?")[0]); ch1 = chapters[0][1]; pos = 0; q_at = None; num_at = None
     for l in ch1:
         pos += nwords(l)
-        if q_at is None and q and q in norm(l): q_at = pos
+        if q_at is None and q and q in as_said(l): q_at = pos
         elif q_at is not None and num_at is None and has_number(l): num_at = pos
     if q_at is None: errs.append("the question of the title is not said word for word in chapter 1")
     elif q_at > WPM / 4 + 1: errs.append(f"the question of the title ends at {mmss(q_at)} ({q_at} words): it must be said before 0:15 ({WPM // 4} words)")
@@ -159,6 +167,7 @@ def selftest():
     e = " | ".join(lint(ex, 0.3)[0])
     for must in ("2 chapters, 9 expected", "no hedge", "reference channel copied", "1 named and dated sources", "source not named in the voice: 'Pew Research Center'", "last line is the question"): assert must in e, (must, e)
     for must_not in ("question of the title", "no figure after the question", "must end on the turn", "template"): assert must_not not in e, (must_not, e)
+    assert as_said("Did People Really Die at 30") == as_said("so, did people really die at thirty?").removeprefix("so ") and spell(47) == "forty seven"
     assert "question of the title is not said" in " | ".join(lint(ex.replace("So, do women really prefer tall men?", "So, do they?"), 0.3)[0])
     assert source_name("Bruch & Newman, 2018, x") == "bruch and newman" and source_name("Walter et al., 2020, x") == "walter" and norm("Lee  &  McKinnish") == "lee and mckinnish"
     old7 = ["In twenty eighteen, the polling firm Ipsos asked Americans about hygiene and cleanliness.", "The online poll ran from August third to sixth that year.",

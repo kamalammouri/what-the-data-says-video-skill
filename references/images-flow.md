@@ -51,6 +51,21 @@ Flow n'a pas d'API : un vrai Chrome piloté par Playwright (`PLAYWRIGHT_DIR=C:/U
 
 Pièges connus : laisser le bouton **Agent** désactivé ; réglage du projet sur Image · 16:9 · x1 (après une génération de vidéo, le remettre sur Image) ; `node scripts/flow/peek.mjs peek.png` montre la page quand un lot cale.
 
+## 3b. Secours : Meta Muse (muse.ai), quand Flow bloque
+
+À utiliser quand Flow refuse (« activité inhabituelle ») ou cale. Testé le 22 novembre 2026 sur le compte gratuit de l'utilisateur (Muse Spark 1.3), avec 4 scènes de medieval-bath-en :
+- **Ce qui marche :** les images sortent en 2048×1152 (vrai 16:9) au format WebP, sans texte. Le héros est reconnaissable, la qualité est proche de Flow, avec des décors un peu plus sombres.
+- **Quantité et délai :** 4 images par demande au plus, environ une minute par demande.
+- **Limite hebdomadaire gratuite :** la limite exacte en nombre d'images n'a pas encore été mesurée. La noter dans `channel-results.md` le jour où elle bloque.
+
+1. **Préparer les messages :** `python scripts/flow/muse.py batches prompts.json flow/<video>` écrit `muse_batches.md`. Chaque message regroupe 4 images qui demandent les mêmes personnages. Les règles et le style commun n'y sont écrits qu'une fois. La liste exclut les images déjà présentes dans `flow/<video>`.
+2. **Les références à joindre :** les fichiers de `assets/cast/`, en remplaçant `reference.png` par **`hero-modern.png`**. L'ancienne référence montre le héros en homme des cavernes avec une lance, et Muse a recopié la lance et les jambes nues dans une rue médiévale. Chaque message interdit donc aussi les armes et les jambes nues.
+3. **Envoyer les messages :** l'utilisateur colle chaque message dans muse.ai avec les fichiers joints, ou Claude le fait avec Claude in Chrome après l'accord de l'utilisateur, un lot à la fois. Ne jamais connecter d'application à Muse (Gmail, Agenda) pour la chaîne.
+4. **Récupérer les images :** ouvrir chaque image et cliquer sur Télécharger, **dans l'ordre des codes**. Les fichiers arrivent dans `~/Downloads` sous le nom que Muse leur donne (`media-generation-<description>-0-<id>.webp`). Un script de la page ne peut pas envoyer les fichiers vers 127.0.0.1, car muse.ai le bloque.
+5. **Les importer :** `python scripts/flow/muse.py import flow/<video> --order F048,F050,...` range dans `flow/<video>/F###.png` le fichier qui porte son code dans le nom, et les autres du plus ancien au plus récent, dans l'ordre donné. Puis planche et contrôle, comme pour Flow (§4).
+6. **Muse Video : pas pour la troupe.** Le clip testé faisait 10 s en 1248×704 avec un son d'ambiance, sans filigrane visible, et le mouvement de caméra était bon. Mais dès 2 s, le héros a pris des yeux bleus, un nez et un visage réaliste. Il reste à essayer, un jour, pour des plans de décor sans personnage (vapeur, feu, rue la nuit).
+7. **Droits :** les conditions de Meta ne disent rien de l'usage commercial des images générées (vérifié le 22 nov. 2026). Les noter dans `credits.md` (« Meta Muse Image ») et revérifier les conditions avant une monétisation à grande échelle.
+
 ## 4. Contrôle en 2 passes (agent `image-qc`)
 
 - **Passe 1** : toutes les planches, avec la phrase `qc` de `styles.json` et `shots.json`. Pour chaque rejet : fichier, défaut, prompt réécrit. Supprimer les `.jpg` et `.png` rejetés, remplacer leur prompt dans `prompts.json`, relancer `flow_loop.sh` (seuls les fichiers absents sont générés).
