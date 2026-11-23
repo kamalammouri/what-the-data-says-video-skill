@@ -3,6 +3,8 @@ Usage: python analyze_video.py <video.mp4|voice.wav> <out_dir> [--subs captions.
 Writes <out_dir>/<id>.json (measures) and <out_dir>/<id>_sheet.jpg (one frame per scene, max 48).
 Gate of this skill, on the final video: speech ratio 0.92 or more (frames louder than -35 dB under the loudest one, so the music
 bed counts: 0.78 to 0.84 for a voice alone, 0.98 with the bed 20 dB under it, measured 11 Nov 2026) and no pause over 0.7 s.
+With music cues instead of a bed (mix.py default since 23 Nov 2026, the user's choice), pass --cues: the voice-only stretches
+measure 0.78 to 0.84, so the gate is speech ratio 0.78 or more and still no pause over 0.7 s (the beats are covered by a cue).
 Needs: pip install librosa soundfile "scenedetect[opencv]" (faster-whisper only for --whisper).
 """
 import json, os, subprocess, sys, math
@@ -153,4 +155,5 @@ if __name__ == "__main__":
     print(f"{vid}: {a['duration_s']}s speech {a['speech_ratio']} pauses/min {a['pauses_per_min']} mean {a['pause_mean_s']}s max {a['pause_max_s']}s "
           f"f0 {a['f0_p10_hz']}-{a['f0_median_hz']}-{a['f0_p90_hz']}Hz | shots {v['shots']} mean {v['shot_mean_s']}s med {v['shot_median_s']}s"
           + (f" | wpm {res['captions']['wpm']}" if 'captions' in res else "")
-          + f" | gate (speech >= 0.92, no pause > 0.7 s): {'OK' if a['speech_ratio'] >= 0.92 and a['pause_max_s'] <= 0.7 else 'FAIL'}")
+          + (f" | gate cues (speech >= 0.78, no pause > 0.7 s): {'OK' if a['speech_ratio'] >= 0.78 and a['pause_max_s'] <= 0.7 else 'FAIL'}" if "--cues" in sys.argv else
+             f" | gate (speech >= 0.92, no pause > 0.7 s): {'OK' if a['speech_ratio'] >= 0.92 and a['pause_max_s'] <= 0.7 else 'FAIL'}"))

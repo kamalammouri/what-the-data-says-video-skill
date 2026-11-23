@@ -27,7 +27,7 @@ Une croyance sur l'attirance (« women prefer tall men »), posée comme questio
 | 7 | **Histoire ancienne : 30 s au plus, 2 blocs au plus** | la chute de 1:58 est l'entrée dans la préhistoire (8 nov. 2026) |
 | 8 | **Formulations prudentes, 4 à 7 sources nommées, aucune phrase recopiée** | règles « contenu à gabarit » et « annonceurs » lues le 11 nov. 2026 (`monetisation-youtube.md`) |
 | 9 | **Voix VoiceStudio en anglais (une voix enregistrée, graine fixe), pause de 0,22 s, 165 à 175 mots/min** | pause réelle de 0,50 s, 155 mots/min ; corrigé : 165 mots/min (ElevenLabs, 11 nov. 2026) ; VoiceStudio : 171 mots/min sur 3 lignes, 2 à 3 min par ligne (22 nov. 2026) ; 2 vidéos publiées en voix française |
-| 10 | **Lit musical CC0 20 dB sous la voix ; ratio parole ≥ 0,92** | 0,80 avant ; 0,98 avec ce mixage (mesuré le 11 nov. 2026) ; 0,92 et 0,96 sur les chaînes comparables |
+| 10 | **Musique CC0 par moments, comme un film : accroche, changements de chapitre, temps forts, fin (`mix.py`, environ 15 % de la durée) ; aucune pause de plus de 0,7 s** | choix de l'utilisateur le 23 nov. 2026 après le lit continu de la vidéo du bain (lit 20 dB sous la voix : ratio 0,98, mesuré le 11 nov.) ; bain remixé : ratio 0,943, pause max 0,56 s |
 | 10b | **Anti-ennui : méthode à l'écran (≤ ¼ des lignes d'un bloc), 2 lignes-chocs et un temps fort « // » par bloc, une image à 2 endroits au plus, une couleur par partie** (`structure-ecriture.md` §5) | vidéos de 12 min : 50 à 68 % encore là à 30 s, 19 à 33 % vus ; bain : 27 mises en garde, une image sur 11 plans, aucune pause de plus de 0,8 s (22 nov. 2026) |
 | 11 | **70 à 85 images Flow, 3 cadrages, coupe toutes les 2 à 2,5 s, un insert de données toutes les 20 à 25 s, contrôle en 2 passes** | 112 images, 27 refaites, 43 refus, 6 passes (bath-en, 10 nov. 2026) |
 | 12 | **Troupe fixe et couverte** (héros, héroïne, ami), tout le monde en bonhomme bâton | miniatures suggestives et personnage en silhouette noire sur les vidéos les plus vues (11 nov. 2026) |
@@ -77,8 +77,8 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
    ```
    python <skill>/scripts/hf_build.py shots.json voice.wav timing.json hf --flow flow/<video> --split-long 2.5
    npx hyperframes check hf --json && HF_SEGMENTED_CAPTURE=true npx hyperframes render hf --workers 10 --gpu
-   python <skill>/scripts/mix.py hf/renders/<rendu>.mp4 music.mp3 out.mp4      (lit 20 dB sous la voix, remonté sur les temps forts « // » ; voix-musique.md §4)
-   python <skill>/scripts/yt/analyze_video.py out.mp4 check
+   python <skill>/scripts/mix.py hf/renders/<rendu>.mp4 music.mp3 out.mp4      (musique par moments : accroche, chapitres, temps forts, fin ; voix-musique.md §4)
+   python <skill>/scripts/yt/analyze_video.py out.mp4 check --cues
    python make_shots.py --chapters                                   # chapters.md + la fin du Short
    ```
    Porte : `check` ok, `gate … OK` (ratio parole ≥ 0,92), planche `check/out_sheet.jpg` lue, Short de moins de 60 s.
@@ -111,7 +111,7 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
 | `references/channel-results.md` | avant de choisir un sujet ; à chaque mesure (chiffres des audits, journal) |
 | `references/sujets.md` | étape 1 : grille de notation, interdits, banque de 15 titres |
 | `references/structure-ecriture.md` | étapes 2 à 4 : plan minuté, bloc type, règles d'écriture, gabarit de `script.md` |
-| `references/images-flow.md` | étapes 6, 7 et 9 : troupe, règles d'image, Flow, refus, contrôle, miniatures |
+| `references/images-flow.md` | étapes 6, 7 et 9 : troupe, règles d'image, Flow, refus, secours Meta Muse (§3b), contrôle, miniatures |
 | `references/voix-musique.md` | étapes 5 et 8 : VoiceStudio (repli ElevenLabs), lit musical, mixage, porte audio |
 | `references/documentaire.md` | étape 6 : plans documentaires animés par code (`MAP`, `DATE`, `CLIP`, `scripts/docfx.py`), style et dosage |
 | `references/archives-3d.md` | étape 6 pour un sujet d'histoire : photos d'archives libres (`cinematic-film`), images 3D (`open-3d-skills`), crédits |
@@ -121,7 +121,7 @@ Chaque étape a une porte de sortie par code ; on ne passe pas à la suivante ta
 | `references/mesure.md` | étape 10 : commandes Studio, règle de décision |
 | `references/agents.md` | avant de lancer un agent : tableau étape / agent / entrée / sortie / porte, briefs |
 
-Scripts (`scripts/`) : `make_shots.py` (gabarit à copier dans le dossier de travail), `prompts.py`, `tts.py`, `hf_build.py`, `mix.py` (mixage, temps forts), `docfx.py` (cartes, dates, extraits ; carte Natural Earth dans `assets/maps/`), `thumb.py`, `sheets.py`, `openverse.py`, `styles.json` ; `flow/` (`flow_loop.sh`, `batch.mjs`, `browser.mjs`, `login.mjs`, `goto.mjs`, `harvest.mjs`, `peek.mjs`, `convert.py`, `harvest_sheet.py`, `kill_flow_edge.ps1`, `cdp.mjs`) ; `yt/` (`keywords.py`, `script_lint.py`, `ypp_lint.py`, `analyze_video.py`, `studio.mjs`). Tests sans réseau : `--selftest` sur `prompts.py`, `tts.py`, `mix.py`, `hf_build.py`, `thumb.py`, `yt/script_lint.py`, `yt/ypp_lint.py`, `yt/keywords.py`. `assets/cast/` : les trois références de la troupe ; `assets/example/script.md` : un script de 12 lignes pour essayer `make_shots.py` et `prompts.py`.
+Scripts (`scripts/`) : `make_shots.py` (gabarit à copier dans le dossier de travail), `prompts.py`, `tts.py`, `hf_build.py`, `mix.py` (mixage, temps forts), `docfx.py` (cartes, dates, extraits ; carte Natural Earth dans `assets/maps/`), `thumb.py`, `sheets.py`, `openverse.py`, `styles.json` ; `flow/` (`flow_loop.sh`, `batch.mjs`, `browser.mjs`, `login.mjs`, `goto.mjs`, `harvest.mjs`, `peek.mjs`, `convert.py`, `harvest_sheet.py`, `kill_flow_edge.ps1`, `cdp.mjs`, `muse.py` (secours Meta Muse : messages par lots de 4, import des téléchargements)) ; `yt/` (`keywords.py`, `script_lint.py`, `ypp_lint.py`, `analyze_video.py`, `studio.mjs`). Tests sans réseau : `--selftest` sur `prompts.py`, `tts.py`, `mix.py`, `flow/muse.py`, `hf_build.py`, `thumb.py`, `yt/script_lint.py`, `yt/ypp_lint.py`, `yt/keywords.py`. `assets/cast/` : les trois références de la troupe ; `assets/example/script.md` : un script de 12 lignes pour essayer `make_shots.py` et `prompts.py`.
 
 Sur le Mac (installé le 22 novembre 2026) : `python` = Python 3.13 du venv `~/.venvs/hidden-bargain` (Pillow, imageio-ffmpeg, librosa, soundfile, scenedetect, yt-dlp) ; `ffmpeg` et `ffprobe` dans `~/.local/bin` ; Playwright + Chromium et HyperFrames dans `~/video-tools` (`PLAYWRIGHT_DIR=~/video-tools`, pris par défaut par `flow_loop.sh`, et `npx` lancé depuis ce dossier ou avec `~/video-tools/node_modules/.bin` dans le PATH) ; Chrome dans `/Applications`. Sans PowerShell, `flow_loop.sh` ne ferme que le Chrome du profil Flow, pas celui de l'utilisateur.
 

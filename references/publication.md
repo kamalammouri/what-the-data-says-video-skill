@@ -21,6 +21,14 @@ Rien n'est publié par le skill : il prépare `livraison/`, l'utilisateur colle 
 4. Dans Studio : « Tester et comparer » avec A et B (une troisième variante possible : A en `--fit=0.65`, lettres encore plus grosses, scène plus petite). Le résultat va dans `channel-results.md`.
 5. `thumb.py` refuse un texte qui n'est pas une question de 3 à 8 mots ou qui porte un mot à risque.
 
+### 2b. Le style mème (demande de l'utilisateur, 23 novembre 2026)
+
+L'utilisateur veut ses miniatures dans le style de ses anciennes vignettes : la troupe en très gros plan, qui remplit le cadre et déborde en bas, avec des expressions exagérées (yeux exorbités injectés de sang, gouttes de sueur, dents serrées, dégoût ou regard en coin). Le fond est sombre, et un titre court de 2 à 4 mots est écrit en énormes lettres jaunes cernées de noir, directement sur l'image.
+- **Scènes :** générées dans Meta Muse (`images-flow.md` §3b) ou dans Flow. Joindre la vignette de référence comme modèle de style et une image réussie de la troupe (F006 pour die-at-30) comme modèle des visages. L'image ne doit contenir ni texte ni chiffre.
+- **Texte :** `python scripts/thumb.py T1.png livraison/thumbnail-A.jpg "DEAD BY 30?" --noband --force` donne des lettres d'environ 150 px posées sur l'image. `--force` est nécessaire, parce que le lint exige la question entière du titre.
+- **Test A/B :** toujours garder une variante avec la question entière du titre (le format mesuré à 9,3 %). Le test de Studio tranche, et le résultat va dans `channel-results.md`.
+- **Mesuré sur die-at-30 :** Muse ne laisse pas le tiers haut vide malgré la consigne, mais le texte peut couvrir le haut des têtes, comme sur la référence. Un vieux héros dessiné en gros plan dérive vers un visage réaliste (nez, rides).
+
 ## 3. Description, tags, hashtags (agent `seo-metadata-editor`)
 
 L'agent écrit `desc.txt`, `short_desc.txt`, `tags.txt` et les passe à son propre lint (`meta_lint.py`). Ce que la description doit contenir pour cette chaîne :

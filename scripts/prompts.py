@@ -53,7 +53,7 @@ CODE_ICONS = {"check mark": "check", "checkmark": "check", "cross mark": "x", "q
 def html_is_data(s):
     """A data insert = a hand-drawn insert that shows a figure (a title card or a bare symbol does not count)."""
     h = s.get("html") or {}
-    return s["family"] == "html" and h.get("type") != "title" and bool(re.search(r"\d", json.dumps(h)))
+    return s["family"] == "html" and h.get("type") != "title" and bool(re.search(r"\d", json.dumps(h, ensure_ascii=False)))   # ensure_ascii: "≠" became "\\u2260" and counted as a figure (23 Nov 2026)
 
 def code_candidate(s):
     if s["family"] not in ("icon", "metaphor", "schema"): return None
